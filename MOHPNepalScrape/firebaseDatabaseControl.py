@@ -8,7 +8,7 @@ class firebase_database_initializing():
     def __init__(self):
         if not firebase_admin._apps:
             current_location = os.path.dirname(os.path.realpath(__file__))
-            cred_object = firebase_admin.credentials.Certificate(os.path.join(current_location,"rugged-coil-292608-firebase-adminsdk-rl5m0-773bda45bb.json"))
+            cred_object = firebase_admin.credentials.Certificate(os.path.join(current_location,"file.json"))
             databaseURL = "https://rugged-coil-292608-default-rtdb.firebaseio.com/"
             default_app = firebase_admin.initialize_app(cred_object, {
                 'databaseURL':databaseURL
