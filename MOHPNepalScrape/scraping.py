@@ -8,7 +8,7 @@ from platform import system
 import threading
 from os import path
 from time import sleep
-from firebase import firebase_database_initializing
+from .firebaseDatabaseControl import firebase_database_initializing
 from datetime import date
 
 
@@ -17,7 +17,7 @@ class covidScraping():
         # Go to covid dashboard of Ministry of health Nepal
         self.url = "https://covid19.mohp.gov.np/"
         options = Options()
-        options.headless = False    # keep this false in the case of debugging
+        options.headless = True   # keep this false in the case of debugging
         options.add_argument("--disable-blink-features=AutomationControlled")
         current_directory = path.dirname(path.realpath(__file__))
         chromedriver = path.join(current_directory, "chromedriver")
@@ -25,6 +25,7 @@ class covidScraping():
             chromedriver = chromedriver + ".exe"
         self.driver = webdriver.Chrome(options=options, executable_path=chromedriver)
         self.driver.minimize_window()
+        self.date_today = date.today().strftime("%Y/%m/%d")
         not_complete=True
         while(not_complete):
             try:
@@ -43,33 +44,28 @@ class covidScraping():
         counter = 0
         while list_empty_status:
             data_part = self.driver.find_elements_by_css_selector("div.ant-card-body div.ant-card-grid")
-            # counter = 0
             list_of_cases = []
             if data_part:
                 list_empty_status = False
             else:
-                # self.driver.refresh()
                 counter += 1
                 print(counter)
                 sleep(20)
             if counter == 10:
                 return 0
         for district in data_part:
-            # counter += 1
             district.find_elements_by_css_selector("span b")
             list_of_cases.append(district.text)
         for location_cases in list_of_cases:
             cases_list = location_cases.split("\n")
             location = cases_list[0]
-            number_of_male = int(cases_list[1].split(":")[-1])
-            number_of_female = int(cases_list[2].split(":")[-1])
+            number_of_male = int(cases_list[2].split(":")[-1])
+            number_of_female = int(cases_list[3].split(":")[-1])
             dict_of_cases = {}
             for variable in ["location", "number_of_male", "number_of_female"]:
                 dict_of_cases[variable]=eval(variable)
-            date_today = date.today()
-            dict_of_cases["Date"] = date_today.strftime("%Y/%m/%d")
+            dict_of_cases["Date"] = self.date_today
             todb = firebase_database_initializing()
-            # print(dict_of_cases)
             todb.insertIntoByDistrict(dict_of_cases)
             del todb
     
@@ -79,9 +75,11 @@ class covidScraping():
         for new_cases in data_part:
             cases = new_cases.find_elements_by_css_selector("p")
             if cases[1].text == "New Cases":
-                new_cases_dict["New_cases"]=cases[0].text
-                # print(cases[0].text)
-                print(new_cases_dict)
+                new_cases_dict["New_cases"]=int(cases[0].text)
+                new_cases_dict["Date"] = self.date_today
+                todb = firebase_database_initializing()
+                todb.insertIntoNewCases(new_cases_dict)
+                del todb
                 break
             else:
                 continue
@@ -92,9 +90,11 @@ class covidScraping():
         for new_cases in data_part:
             cases = new_cases.find_elements_by_css_selector("p")
             if cases[1].text == "Total Cases":
-                total_cases_dict["Total_cases"]=cases[0].text
-                print(total_cases_dict)
-                # print(cases[0].text)
+                total_cases_dict["Total_cases"]=int(cases[0].text)
+                total_cases_dict["Date"] = self.date_today
+                todb = firebase_database_initializing()
+                todb.insertIntoTotalCases(total_cases_dict)
+                del todb
                 break
             else:
                 continue
@@ -105,9 +105,11 @@ class covidScraping():
         for new_cases in data_part:
             cases = new_cases.find_elements_by_css_selector("p")
             if cases[1].text == "Deaths":
-                total_deaths_dict["Total_deaths"]=cases[0].text
-                print(total_deaths_dict)
-                # print(cases[0].text)
+                total_deaths_dict["Total_deaths"]=int(cases[0].text)
+                total_deaths_dict["Date"] = self.date_today
+                todb = firebase_database_initializing()
+                todb.insertIntoTotalDeaths(total_deaths_dict)
+                del todb
                 break
             else:
                 continue
@@ -118,9 +120,11 @@ class covidScraping():
         for new_cases in data_part:
             cases = new_cases.find_elements_by_css_selector("p")
             if cases[1].text == "Recovered":
-                total_recovered_dict["Total_recovered"]=cases[0].text
-                print(total_recovered_dict)
-                # print(cases[0].texts)
+                total_recovered_dict["Total_recovered"]=int(cases[0].text)
+                total_recovered_dict["Date"] = self.date_today
+                todb = firebase_database_initializing()
+                todb.insertIntoTotalRecovered(total_recovered_dict)
+                del todb
                 break
             else:
                 continue
@@ -150,11 +154,11 @@ if __name__ == "__main__":
     def executing():
         initializing = covidScraping()
         while execution_Status:
-            initializing.get_district_data()
-            # initializing.getNewCases()
-            # initializing.getTotalCases()
-            # initializing.getTotalDeaths()
-            # initializing.getTotalRecovered()
+            # initializing.get_district_data()
+            initializing.getNewCases()
+            initializing.getTotalCases()
+            initializing.getTotalDeaths()
+            initializing.getTotalRecovered()
             initializing.refresh_page()
         del initializing
 
@@ -167,3 +171,4 @@ if __name__ == "__main__":
     t1 = threading.Thread(target=executing)
     t1.start()
     interrupt()
+    t1.join()

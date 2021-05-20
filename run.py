@@ -1,19 +1,26 @@
-from scraping import covidScraping
+from MOHPNepalScrape.scraping import covidScraping
 import threading
 execution_Status = True
 def gettingDistrictData():
     initializing = covidScraping()
     while execution_Status:
         initializing.get_district_data()
-        initializing.refresh_page()
+        if execution_Status:
+            initializing.refresh_page()
     del initializing
+    print("End of getting district datas")
 
 def gettingOtherData():
     initializing = covidScraping()
     while execution_Status:
         initializing.getNewCases()
-        initializing.refresh_page()
+        initializing.getTotalCases()
+        initializing.getTotalDeaths()
+        initializing.getTotalRecovered()
+        if execution_Status:
+            initializing.refresh_page()
     del initializing
+    print("End of getting Other datas")
 
 def interrupt():
     global execution_Status
@@ -24,4 +31,7 @@ def interrupt():
 t1 = threading.Thread(target=gettingDistrictData)
 t2 = threading.Thread(target=gettingOtherData)
 t1.start()
+t2.start()
 interrupt()
+t1.join()
+t2.join()
