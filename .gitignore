@@ -1,0 +1,4 @@
+env/
+__pycache__/
+geckodriver.log
+rugged-coil-292608-firebase-adminsdk-rl5m0-773bda45bb.json
