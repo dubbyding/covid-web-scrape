@@ -23,7 +23,7 @@ class firebase_database_initializing():
         for key1, value1 in values.items():
             # print(value1)
             if(value1["location"]==json_file["location"]):
-                if (value1["number_of_female"] == json_file["number_of_female"]) and (value1["number_of_male"] == json_file["number_of_male"]):
+                if (value1["number_of_female"] == json_file["number_of_female"]) and (value1["number_of_male"] == json_file["number_of_male"]) and (value1["Date"]==json_file["Date"]):
                     print("Value already exists in the Database")
                     return 0
         self.insert(node_address="/CovidMOHP/By_district", json_file=json_file)
@@ -39,7 +39,7 @@ class firebase_database_initializing():
             if(value1["New_cases"]==json_file["New_cases"]) and (value1["Date"]==json_file["Date"]):
                 print("Value already exists in the database")
                 return 0
-        self.insert(node_address="/CovidMOHP/New_cases", json_f1ile=json_file)
+        self.insert(node_address="/CovidMOHP/New_cases", json_file=json_file)
 
     def insertIntoTotalCases(self, json_file):
         values = self.getDataOfTotalCases()
@@ -51,7 +51,7 @@ class firebase_database_initializing():
             if(value1["Total_cases"]==json_file["Total_cases"]) and (value1["Date"]==json_file["Date"]):
                 print("Value already exists in the database")
                 return 0
-        self.insert(node_address="/CovidMOHP/Total_cases", json_f1ile=json_file)
+        self.insert(node_address="/CovidMOHP/Total_cases", json_file=json_file)
     
     def insertIntoTotalDeaths(self, json_file):
         values = self.getDataOfTotalDeaths()
@@ -63,7 +63,7 @@ class firebase_database_initializing():
             if(value1["Total_deaths"]==json_file["Total_deaths"]) and (value1["Date"]==json_file["Date"]):
                 print("Value already exists in the database")
                 return 0
-        self.insert(node_address="/CovidMOHP/Total_deaths", json_f1ile=json_file)
+        self.insert(node_address="/CovidMOHP/Total_deaths", json_file=json_file)
 
     def insertIntoTotalRecovered(self, json_file):
         values = self.getDataOfTotalRecovered()
@@ -75,7 +75,7 @@ class firebase_database_initializing():
             if(value1["Total_recovered"]==json_file["Total_recovered"]) and (value1["Date"]==json_file["Date"]):
                 print("Value already exists in the database")
                 return 0
-        self.insert(node_address="/CovidMOHP/Total_recovered", json_f1ile=json_file)
+        self.insert(node_address="/CovidMOHP/Total_recovered", json_file=json_file)
 
     def insert(self, node_address, json_file):
         print(json_file)
